@@ -1,0 +1,6 @@
+{
+  "name": "The Protein Crate",
+  "description": "A lead generation landing page for a gym vending machine partnership business.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
