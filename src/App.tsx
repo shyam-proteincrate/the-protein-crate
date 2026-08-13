@@ -5,11 +5,47 @@
 
 import { motion } from 'motion/react';
 import { CheckCircle2, Zap, Droplets, UserMinus, ShieldCheck, MapPin, Info } from 'lucide-react';
-import React from 'react';
+import React, { useState } from 'react';
 import img1 from '@/assets/img1.png';
 import img2 from '@/assets/img2.png';
 
 export default function App() {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmitted, setIsSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+    setError(null);
+
+    const formData = new FormData(e.currentTarget);
+    const data = Object.fromEntries(formData.entries());
+
+    try {
+      // In Vite we respect the base path, but our custom backend route is strictly /api/leads
+      // Because base is configured in Vite config, we should make sure the fetch goes to the correct URL
+      const response = await fetch('/api/leads', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (!response.ok) {
+        throw new Error('Failed to submit form');
+      }
+
+      setIsSubmitted(true);
+      (e.target as HTMLFormElement).reset();
+    } catch (err: any) {
+      setError(err.message || 'Something went wrong');
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white font-sans selection:bg-[#BEF264]/30">
       {/* Navigation */}
@@ -280,13 +316,14 @@ export default function App() {
               </p>
             </div>
 
-            <form className="bg-[#0A0A0B] border border-white/10 p-8 space-y-6" onSubmit={(e) => e.preventDefault()}>
+            <form className="bg-[#0A0A0B] border border-white/10 p-8 space-y-6" onSubmit={handleSubmit}>
               <div className="grid sm:grid-cols-2 gap-6">
                 <div className="space-y-1">
                   <label htmlFor="fullName" className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Full Name</label>
                   <input 
                     type="text" 
                     id="fullName" 
+                    name="fullName"
                     className="w-full bg-white/5 border border-white/20 p-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#BEF264] transition-colors" 
                     placeholder="John Doe"
                     required
@@ -297,6 +334,7 @@ export default function App() {
                   <input 
                     type="text" 
                     id="gymName" 
+                    name="gymName"
                     className="w-full bg-white/5 border border-white/20 p-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#BEF264] transition-colors" 
                     placeholder="Titan Fitness"
                     required
@@ -310,6 +348,7 @@ export default function App() {
                   <div className="relative">
                     <select 
                       id="city" 
+                      name="city"
                       className="w-full bg-white/5 border border-white/20 p-3 text-sm text-white appearance-none focus:outline-none focus:border-[#BEF264] transition-colors"
                       required
                       defaultValue=""
@@ -329,6 +368,7 @@ export default function App() {
                   <input 
                     type="text" 
                     id="location" 
+                    name="location"
                     className="w-full bg-white/5 border border-white/20 p-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#BEF264] transition-colors" 
                     placeholder="e.g., Jayanagar, Madhapur"
                     required
@@ -341,6 +381,7 @@ export default function App() {
                 <input 
                   type="tel" 
                   id="phone" 
+                  name="phone"
                   className="w-full bg-white/5 border border-white/20 p-3 text-sm text-white placeholder:text-gray-600 focus:outline-none focus:border-[#BEF264] transition-colors" 
                   placeholder="+91 "
                   required
@@ -352,6 +393,7 @@ export default function App() {
                 <div className="relative">
                   <select 
                     id="footfall" 
+                    name="footfall"
                     className="w-full bg-white/5 border border-white/20 p-3 text-sm text-white appearance-none focus:outline-none focus:border-[#BEF264] transition-colors"
                     required
                     defaultValue=""
@@ -371,20 +413,18 @@ export default function App() {
                 <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-widest">Do you have 3x3 sq. ft. of floor space near a plug point?</label>
                 <div className="flex gap-6">
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative flex items-center justify-center">
+                    <div className="relative flex items-center justify-center w-4 h-4">
                       <input type="radio" name="space" value="yes" className="peer sr-only" required />
-                      <div className="w-4 h-4 border border-white/20 peer-checked:border-[#BEF264] group-hover:border-[#BEF264] transition-colors flex items-center justify-center">
-                         <div className="w-2 h-2 bg-[#BEF264] scale-0 peer-checked:scale-100 transition-transform"></div>
-                      </div>
+                      <div className="absolute inset-0 border border-white/20 peer-checked:border-[#BEF264] group-hover:border-[#BEF264] transition-colors"></div>
+                      <div className="w-2 h-2 bg-[#BEF264] scale-0 peer-checked:scale-100 transition-transform relative z-10"></div>
                     </div>
                     <span className="text-sm text-gray-400 group-hover:text-white transition-colors uppercase font-bold">Yes</span>
                   </label>
                   <label className="flex items-center gap-3 cursor-pointer group">
-                    <div className="relative flex items-center justify-center">
+                    <div className="relative flex items-center justify-center w-4 h-4">
                       <input type="radio" name="space" value="no" className="peer sr-only" required />
-                      <div className="w-4 h-4 border border-white/20 peer-checked:border-[#BEF264] group-hover:border-[#BEF264] transition-colors flex items-center justify-center">
-                         <div className="w-2 h-2 bg-[#BEF264] scale-0 peer-checked:scale-100 transition-transform"></div>
-                      </div>
+                      <div className="absolute inset-0 border border-white/20 peer-checked:border-[#BEF264] group-hover:border-[#BEF264] transition-colors"></div>
+                      <div className="w-2 h-2 bg-[#BEF264] scale-0 peer-checked:scale-100 transition-transform relative z-10"></div>
                     </div>
                     <span className="text-sm text-gray-400 group-hover:text-white transition-colors uppercase font-bold">No</span>
                   </label>
@@ -392,11 +432,29 @@ export default function App() {
               </div>
 
               <div className="pt-6">
+                {isSubmitted && (
+                  <div className="mb-4 p-4 bg-[#BEF264]/10 border border-[#BEF264]/20 text-[#BEF264] text-sm text-center font-bold uppercase tracking-widest">
+                    Application received! We will be in touch shortly.
+                  </div>
+                )}
+                {error && (
+                  <div className="mb-4 p-4 bg-red-900/20 border border-red-500/20 text-red-400 text-sm text-center font-bold uppercase tracking-widest">
+                    {error}
+                  </div>
+                )}
                 <button 
                   type="submit"
-                  className="w-full bg-[#BEF264] text-black font-black uppercase tracking-widest py-4 mt-2 hover:bg-[#a8d655] transition-colors text-sm"
+                  disabled={isSubmitting}
+                  className="w-full bg-[#BEF264] text-black font-black uppercase tracking-widest py-4 mt-2 hover:bg-[#a8d655] transition-colors text-sm disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
-                  Get My Free Vending Machine
+                  {isSubmitting ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-black border-t-transparent rounded-full animate-spin"></div>
+                      Submitting...
+                    </>
+                  ) : (
+                    'Get My Free Vending Machine'
+                  )}
                 </button>
               </div>
             </form>
