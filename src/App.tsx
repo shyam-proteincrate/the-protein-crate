@@ -23,11 +23,10 @@ export default function App() {
     const data = Object.fromEntries(formData.entries());
 
     try {
-      // In Vite we respect the base path, but our custom backend route is strictly /api/leads
-      // Because base is configured in Vite config, we should make sure the fetch goes to the correct URL
-      const response = await fetch('/api/leads', {
+      const response = await fetch('https://formspree.io/f/moeapwkv', {
         method: 'POST',
         headers: {
+          'Accept': 'application/json',
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
